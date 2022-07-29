@@ -13,9 +13,23 @@ genes: a Random Forest, a Support Vector Machine and a K-nearest
 neighbor.
 
 ### Random Forest model
-_Key difference_ : Here feature importance was calculated using the [vip](https://koalaverse.github.io/vip/articles/vip.html) package's permutation instead of caret::varImp. This may result in changes in
-raking order.
+_Key difference_ : Here feature importance was calculated using the [vip](https://koalaverse.github.io/vip/articles/vip.html) package rather than caret::varImp . This package uses model-specific importances for tree-based models such as RF and xgboost.
 
 <img src="model_plots.png" alt = "sp_rf_results"/>
+
+### SVM model
+
+roc_auc = 0.906
+SVM seems more likely to predict "Perturbation".
+
+<img src="svm_model_plots.png" alt = "sp_svm_results"/>
+
+
+Obtaining feature importance for the SVM and KNN models, vip 
+permutation-based importance seems to take a long time as this 
+particular dataset contains more than 5000 features. 
+
+
+
 
 
