@@ -12,29 +12,35 @@ For this paper, three models were built for identification of top
 genes: a Random Forest, a Support Vector Machine and a K-nearest 
 neighbor.
 
+### About variable importance
+
+Rather than caret::varImp, Tidymodels tipically relies on the vip
+package to calculate variable importance.
+[vip](https://koalaverse.github.io/vip/index.html) allows calculating model-specific feature importance, which was used for the random forest model.
+
+For models such as the SVM and KNN [vip](https://koalaverse.github.io/vip/index.html) also allows model agnostic calculations. Here I used FIRM  based on [Greenwell et al (2018)](https://arxiv.org/abs/1805.04755).
+
+The large number of features in this dataset may turn this calculations slow.
+
+
 ### Random Forest model
-_Key difference_ : Here feature importance was calculated using the [vip](https://koalaverse.github.io/vip/articles/vip.html) package rather than caret::varImp . This package uses model-specific importances for tree-based models such as RF and xgboost.
 
 <img src="model_plots.png" alt = "sp_rf_results"/>
 
 ### Support Vector Machine model
 
-accuracy: 0.773
-roc_auc: 0.906
+- accuracy: 0.773
+- roc_auc: 0.906
 SVM seems more likely to predict "Perturbation".
 
 <img src="svm_model_plots.png" alt = "sp_svm_results"/>
 
 
-Obtaining feature importance for the SVM and KNN models, vip 
-permutation-based importance seems to take a long time as this 
-particular dataset contains more than 5000 features. 
-
 
 ### K-nearest neighbor model
 
-accuracy: 0.773
-roc_auc: 0.739
+- accuracy: 0.773
+- roc_auc: 0.739
 
-<img src="kknn_model_plots.png" alt = "kknn_svm_results"/>
+<img src="kknn_model_plots.png" alt = "kknn_model_results"/>
 
