@@ -17,9 +17,10 @@ _Key difference_ : Here feature importance was calculated using the [vip](https:
 
 <img src="model_plots.png" alt = "sp_rf_results"/>
 
-### SVM model
+### Support Vector Machine model
 
-roc_auc = 0.906
+accuracy: 0.773
+roc_auc: 0.906
 SVM seems more likely to predict "Perturbation".
 
 <img src="svm_model_plots.png" alt = "sp_svm_results"/>
@@ -30,6 +31,10 @@ permutation-based importance seems to take a long time as this
 particular dataset contains more than 5000 features. 
 
 
+### K-nearest neighbor model
 
+accuracy: 0.773
+roc_auc: 0.739
 
+<img src="kknn_model_plots.png" alt = "kknn_svm_results"/>
 

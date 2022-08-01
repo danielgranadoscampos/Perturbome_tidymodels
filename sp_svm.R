@@ -11,6 +11,7 @@ library(vip)
 library(forcats)
 library(cowplot)
 library(foreach)
+library(pdp)
 
 
 # Dataset ----------------------------------------------------------
@@ -106,26 +107,39 @@ ggsave("svm_model_plots.png", plot_row, height = 3)
 
 
 ## Importance score (in development) ----
+# FIRM approach is used
 
-# recipe_prep <- prep(svm_recipe)
-# 
-# svm_imp <- final_svm_fit %>% 
-#   extract_fit_parsnip() %>% 
-#   vi(
-#     method = "permute",
-#     target = "Class", metric = "accuracy",
-#     pred_wrapper = kernlab::predict, 
-#     train = juice(recipe_prep),
-#     nsim = 5,
-#     parallel = TRUE
-#   )
-# summary(svm_imp)
-# 
-# importance_plot <- svm_imp %>%
-#   mutate(Variable = fct_reorder(Variable, Importance)) %>%
-#   slice_head(n=20) %>% 
-#   ggplot(aes(x = Variable, y = Importance)) +
-#   geom_segment(aes(x = Variable , xend= Variable, y=0, yend= Importance))+
-#   geom_point() +
-#   coord_flip() +
-#   theme_bw()
+#Finalize model with best tune
+svm_imp_spec <- svm_spec %>%
+  finalize_model(select_best(svm_tune, metric = "accuracy")) %>%
+  set_engine("kernlab", importance = "permutation")
+
+#Get feature names
+svm_feature_names <- Dtraining %>% 
+  select(-Class) %>% 
+  names()
+# FIRM based importance
+svm_imp_scores <- workflow() %>%
+  add_recipe(svm_recipe) %>%
+  add_model(svm_imp_spec) %>%
+  fit(Dtraining) %>%
+  extract_fit_parsnip() %>%
+  vi(method = "firm", svm_feature_names, 
+     train = Dtraining) #this takes a long time
+
+# Importance plot
+importance_plot <- svm_imp_scores %>%
+  mutate(Variable = fct_reorder(Variable, Importance)) %>%
+  slice_head(n=20) %>%
+  ggplot(aes(x = Variable, y = Importance)) +
+  geom_segment(aes(x = Variable , xend= Variable, y=0, yend= Importance))+
+  geom_point() +
+  coord_flip() +
+  theme_bw()
+
+## Saving plots
+plot_top_row <- plot_grid(roc_plot, conf_mat_plot)
+
+full_plot <- plot_grid(plot_top_row, importance_plot, ncol = 1)
+
+ggsave("svm_model_plots.png", full_plot, height = 6)
