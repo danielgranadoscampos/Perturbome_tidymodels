@@ -54,12 +54,16 @@ rf_workflow <-
   add_recipe(rf_recipe) %>% 
   add_model(rf_spec)
 
+doParallel::registerDoParallel()
+
 # Tuning
 set.seed(14426)
-ranger_tune <-
+rf_tune <-
   tune_grid(rf_workflow, 
             resamples = training_folds, 
-            grid = 20)
+            grid = 25,
+            metrics = metric_set(accuracy, kap))
+
 
 # Selecting best model
 
