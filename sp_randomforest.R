@@ -62,22 +62,27 @@ rf_tune <-
   tune_grid(rf_workflow, 
             resamples = training_folds, 
             grid = 25,
-            metrics = metric_set(accuracy, kap))
+            metrics = metric_set(accuracy, kap, roc_auc))
 
 
 # Selecting best model
 
 final_rf <- rf_workflow %>%
-  finalize_workflow(select_best(ranger_tune, metric = "accuracy"))
+  finalize_workflow(select_best(rf_tune, metric = "accuracy"))
 
-final_rf_fit <- last_fit(final_rf, Dataset_split)
+final_rf_fit <- last_fit(final_rf, Dataset_split, 
+                         metrics = metric_set(accuracy, kap, roc_auc))
 
 # Model effectiveness
 collect_metrics(final_rf_fit)
 
 predictions <- collect_predictions(final_rf_fit)
 
-conf_mat(predictions, truth = Class, estimate = .pred_class)
+## Confusion matrix ----
+conf_mat_plot <- final_rf_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(truth = Class, estimate =.pred_class) %>% 
+  autoplot(type = "heatmap")
 
 roc_plot <- roc_curve(predictions, truth = Class, .pred_Control) %>% 
   autoplot()
@@ -88,7 +93,7 @@ roc_plot <- roc_curve(predictions, truth = Class, .pred_Control) %>%
 # a different method to the one used in caret::varImp()
 
 imp_spec <- rf_spec %>%
-  finalize_model(select_best(ranger_tune, metric = "accuracy")) %>%
+  finalize_model(select_best(rf_tune, metric = "accuracy")) %>%
   set_engine("ranger", importance = "permutation")
 
 imp_scores <- workflow() %>%
@@ -108,5 +113,7 @@ importance_plot <- imp_scores %>%
   theme_bw()
 
 ## Saving plots
-plot_row <- plot_grid(importance_plot, roc_plot)
-ggsave("model_plots.png", plot_row, height = 3)
+plot_top_row <- plot_grid(roc_plot, conf_mat_plot)
+
+full_plot <- plot_grid(plot_top_row, importance_plot, ncol = 1)
+ggsave("model_plots.png", full_plot, height = 6)
