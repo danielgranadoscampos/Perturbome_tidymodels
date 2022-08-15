@@ -35,7 +35,7 @@ classif_ind_tidy <- function(fdata, fktop){
     tune_grid(rf_workflow, 
               resamples = training_folds, 
               grid = 25,
-              metrics = metric_set(accuracy, kap, roc_auc))
+              metrics = metric_set(accuracy,kap,roc_auc))
   
   
   # Importance
@@ -56,7 +56,7 @@ classif_ind_tidy <- function(fdata, fktop){
   # Rebuild dataset
   
   dataset_ranked <- fdata %>% 
-    select(all_of(imp_scores$variable))
+    select(all_of(imp_scores$Variable), Class)
   
   ranked_split <- initial_split(dataset_ranked, strata = Class)
   
@@ -92,7 +92,10 @@ classif_ind_tidy <- function(fdata, fktop){
     finalize_model(select_best(ranked_tune, metric = "accuracy")) %>%
     set_engine("ranger", importance = "permutation")
   
-  final_rf_fit <- last_fit(final_rf, Dataset_split,
+  final_model <- ranked_workflow %>%
+    finalize_workflow(select_best(ranked_tune, metric = "accuracy"))
+  
+  final_model_fit <- last_fit(final_model, ranked_split,
                            metrics = metric_set(accuracy, kap, roc_auc))
   
   ranked_imp_scores <- workflow() %>%
@@ -100,16 +103,25 @@ classif_ind_tidy <- function(fdata, fktop){
     add_model(ranked_imp_spec) %>%
     fit(dtraining_ranked) %>%
     extract_fit_parsnip() %>%
-    vi(rank = TRUE) %>% 
-    head(n = fktop)
+    vi() 
   
-  
+  #Get some metrics
+  model_accuracy <- collect_metrics(final_model_fit) %>%
+    filter(.metric == "accuracy")
+  model_roc_auc <- collect_metrics(final_model_fit) %>%
+    filter(.metric == "roc_auc")
+  model_kappa <- collect_metrics(final_model_fit) %>%
+    filter(.metric == "kap")
+    
+
   # Genes and metrics
   
   output <- ranked_imp_scores %>% 
-    select(Variable) %>% 
-    mutate()
+    mutate(accuracy = model_accuracy[[3]],
+           roc_auc = model_roc_auc[[3]],
+           kappa = model_kappa[[3]])
 
+  return(output)
   
   
 }
