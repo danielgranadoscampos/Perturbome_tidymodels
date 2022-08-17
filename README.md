@@ -14,7 +14,7 @@ neighbor.
 
 ### About variable importance
 
-Rather than caret::varImp, Tidymodels tipically relies on the vip
+Rather than [caret::varImp](https://github.com/topepo/caret/blob/master/pkg/caret/R/varImp.R), Tidymodels tipically relies on the [vip](https://koalaverse.github.io/vip/index.html)
 package to calculate variable importance.
 [vip](https://koalaverse.github.io/vip/index.html) allows calculating model-specific feature importance, which was used for the random forest model.
 
@@ -22,6 +22,7 @@ For models such as the SVM and KNN [vip](https://koalaverse.github.io/vip/index.
 
 The large number of features in this dataset may turn this calculations slow.
 
+## Single partition:
 
 ### Random Forest model
 
@@ -36,11 +37,17 @@ SVM seems more likely to predict "Perturbation".
 <img src="svm_model_plots.png" alt = "sp_svm_results"/>
 
 
-
 ### K-nearest neighbor model
 
 - accuracy: 0.773
 - roc_auc: 0.739
 
 <img src="kknn_model_plots.png" alt = "kknn_model_results"/>
+
+## Multiple partition Random Forest
+
+The multiple partition method is executed with classid_ind_tidy.R.
+As of right now it only uses de Random Forest model with 6 replicas (paper uses 100 replicas).
+
+<img src="mp_rf_plot.png" alt = "mp_rf_model_results"/>
 

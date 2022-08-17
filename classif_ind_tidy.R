@@ -25,14 +25,12 @@ classif_ind_tidy <- function(fdata, fktop){
   
   model_workflow <- 
     workflow() %>% 
-    add_recipe(rf_recipe) %>% 
-    add_model(rf_spec)
-  
-  doParallel::registerDoParallel()
+    add_recipe(recipe) %>% 
+    add_model(spec)
   
   # Tuning
   model_tune <-
-    tune_grid(rf_workflow, 
+    tune_grid(model_workflow, 
               resamples = training_folds, 
               grid = 25,
               metrics = metric_set(accuracy,kap,roc_auc))
@@ -78,10 +76,11 @@ classif_ind_tidy <- function(fdata, fktop){
     add_model(spec)
 
   # Tuning
+  
   ranked_tune <-
     tune_grid(ranked_workflow,
               resamples = ranked_folds,
-              grid = 25,
+              grid = 20,
               metrics = metric_set(accuracy, kap, roc_auc))
   
   
@@ -120,7 +119,8 @@ classif_ind_tidy <- function(fdata, fktop){
     mutate(accuracy = model_accuracy[[3]],
            roc_auc = model_roc_auc[[3]],
            kappa = model_kappa[[3]])
-
+  
+  print("Replica done")
   return(output)
   
   

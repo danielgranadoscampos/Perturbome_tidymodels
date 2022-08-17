@@ -27,12 +27,13 @@ Dataset <- Dataset %>%
          - Sample_title)
 
 
-kreplicas = 20
+kreplicas = 6
 ktop = 56
 
 # Run random forest model "kreplicas" times and get results
-mptable <- rerun(kreplicas, classif_ind_tidy(Dataset, ktop)) %>% 
-  bind_rows()
+mptable <- rerun(kreplicas, classif_ind_tidy(Dataset, ktop))
+
+mptable <- bind_rows(mptable)
 
 
 # Look at variation in metrics from model reruns
