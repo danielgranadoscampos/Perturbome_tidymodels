@@ -68,7 +68,7 @@ rf_tune <-
 # Selecting best model
 
 final_rf <- rf_workflow %>%
-  finalize_workflow(select_best(ranger_tune, metric = "accuracy"))
+  finalize_workflow(select_best(rf_tune, metric = "accuracy"))
 
 final_rf_fit <- last_fit(final_rf, Dataset_split,
                          metrics = metric_set(accuracy, kap, roc_auc))
@@ -78,7 +78,8 @@ collect_metrics(final_rf_fit)
 
 predictions <- collect_predictions(final_rf_fit)
 
-conf_mat(predictions, truth = Class, estimate = .pred_class)
+conf_mat_plot <- conf_mat(predictions, truth = Class, estimate = .pred_class) %>% 
+  autoplot(type = "heatmap")
 
 roc_plot <- roc_curve(predictions, truth = Class, .pred_Control) %>% 
   autoplot()
