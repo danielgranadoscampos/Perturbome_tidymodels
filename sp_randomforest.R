@@ -61,7 +61,7 @@ set.seed(14426)
 rf_tune <-
   tune_grid(rf_workflow, 
             resamples = training_folds, 
-            grid = 25,
+            grid = 30,
             metrics = metric_set(accuracy, kap, roc_auc))
 
 
